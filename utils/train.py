@@ -1,10 +1,12 @@
 import torch
-import torch.nn as nn
 from torch.autograd import Variable
+from flags import *
 
 def train(epoch, dataloader, net, criterion, optimizer, opt):
     net.train()
     for i, (adj_matrix, annotation, target) in enumerate(dataloader, 0):
+        print(adj_matrix.numpy().shape, annotation.numpy().shape, target.numpy().shape)
+        break
         net.zero_grad()
 
         padding = torch.zeros(len(annotation), opt.n_node, opt.state_dim - opt.annotation_dim).double()
@@ -23,14 +25,15 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
         output = net(init_input, annotation, adj_matrix)
 
         loss = criterion(output, target)
-        for m in net.modules():
-            if isinstance(m, nn.Linear):
-                print("bias", m.bias.detach().numpy())  # print bias
-                if hasattr(m.bias.grad, "numpy"):
-                    print("grad", m.bias.grad.numpy())
+        # for m in net.modules():
+        #     if isinstance(m, nn.Linear):
+        #         print("bias", m.bias.detach().numpy())  # print bias
+        #         if hasattr(m.bias.grad, "numpy"):
+        #             print("grad", m.bias.grad.numpy())
 
         loss.backward()
         optimizer.step()
         print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
-        # break
+        if sing_step_flag:
+            break
         # if i % int(len(dataloader) / 10 + 1) == 0 and opt.verbal:

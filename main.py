@@ -12,13 +12,16 @@ from utils.data.dataset import bAbIDataset
 from utils.data.dataloader import bAbIDataloader
 
 parser = argparse.ArgumentParser()
+# support change
 parser.add_argument('--task_id', type=int, default=4, help='bAbI task id')
+parser.add_argument('--state_dim', type=int, default=4, help='GGNN hidden state size')
+parser.add_argument('--niter', type=int, default=10, help='number of epochs to train for')
+
+# unsupport change
 parser.add_argument('--question_id', type=int, default=0, help='question types')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
-parser.add_argument('--batchSize', type=int, default=10, help='input batch size')
-parser.add_argument('--state_dim', type=int, default=10, help='GGNN hidden state size')
+parser.add_argument('--batchSize', type=int, default=1, help='input batch size')
 parser.add_argument('--n_steps', type=int, default=4, help='propogation steps number of GGNN')
-parser.add_argument('--niter', type=int, default=10, help='number of epochs to train for')
 parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--verbal', action='store_true', help='print training info or not')
@@ -42,7 +45,7 @@ if opt.cuda:
 def main(opt):
     train_dataset = bAbIDataset(opt.train_dataroot, opt.question_id, True)
     train_dataloader = bAbIDataloader(train_dataset, batch_size=opt.batchSize, \
-                                      shuffle=True, num_workers=2)
+                                      shuffle=False, num_workers=2)
 
     val_dataset = bAbIDataset(opt.train_dataroot, opt.question_id, False)
     val_dataloader = bAbIDataloader(val_dataset, batch_size=opt.batchSize, \

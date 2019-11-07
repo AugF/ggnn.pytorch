@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
 from tools import save_weight
-
-save_flag = False
+from flags import *
 
 class AttrProxy(object):
     """
@@ -31,15 +30,15 @@ class Propogator(nn.Module):
         self.n_edge_types = n_edge_types
 
         self.reset_gate = nn.Sequential(
-            nn.Linear(state_dim*3, state_dim),
+            nn.Linear(state_dim*3, state_dim, bias=bias_flag),
             nn.Sigmoid()
         )
         self.update_gate = nn.Sequential(
-            nn.Linear(state_dim*3, state_dim),
+            nn.Linear(state_dim*3, state_dim, bias=bias_flag),
             nn.Sigmoid()
         )
         self.tansform = nn.Sequential(
-            nn.Linear(state_dim*3, state_dim),
+            nn.Linear(state_dim*3, state_dim, bias=bias_flag),
             nn.Tanh()
         )
 
@@ -66,10 +65,10 @@ class Propogator(nn.Module):
                 save_weight("weight_r_{}".format(j), gates[0].weight.detach().numpy()[:, left:right])
                 save_weight("weight_z_{}".format(j), gates[1].weight.detach().numpy()[:, left:right])
                 save_weight("weight_h_{}".format(j), gates[2].weight.detach().numpy()[:, left:right])
-
-            save_weight("weight_z_bias", gates[0].bias)
-            save_weight("weight_r_bias", gates[1].bias)
-            save_weight("weight_h_bias", gates[2].bias)
+            if bias_flag:
+                save_weight("weight_z_bias", gates[0].bias)
+                save_weight("weight_r_bias", gates[1].bias)
+                save_weight("weight_h_bias", gates[2].bias)
 
         return output
 
@@ -94,8 +93,8 @@ class GGNN(nn.Module):
 
         for i in range(self.n_edge_types):
             # incoming and outgoing edge embedding
-            in_fc = nn.Linear(self.state_dim, self.state_dim)
-            out_fc = nn.Linear(self.state_dim, self.state_dim)
+            in_fc = nn.Linear(self.state_dim, self.state_dim, bias=bias_flag)
+            out_fc = nn.Linear(self.state_dim, self.state_dim, bias=bias_flag)
             self.add_module("in_{}".format(i), in_fc)
             self.add_module("out_{}".format(i), out_fc)
 
@@ -107,9 +106,9 @@ class GGNN(nn.Module):
 
         # Output Model
         self.out = nn.Sequential(
-            nn.Linear(self.state_dim + self.annotation_dim, self.state_dim),
+            nn.Linear(self.state_dim + self.annotation_dim, self.state_dim, bias=bias_flag),
             nn.Tanh(),
-            nn.Linear(self.state_dim, 1)
+            nn.Linear(self.state_dim, 1, bias=bias_flag)
         )
 
         self._initialization()
@@ -118,7 +117,8 @@ class GGNN(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 m.weight.data.normal_(0.0, 0.02)  # todo check
-                m.bias.data.fill_(0)
+                if bias_flag:
+                    m.bias.data.fill_(0)
 
     def forward(self, prop_state, annotation, A):
         for i_step in range(self.n_steps):
@@ -129,9 +129,10 @@ class GGNN(nn.Module):
                 out_states.append(self.out_fcs[i](prop_state))
                 if save_flag:
                     save_weight("weight_in_{}".format(i), self.in_fcs[i].weight)
-                    save_weight("weight_in_bias_{}".format(i), self.in_fcs[i].bias)
                     save_weight("weight_out_{}".format(i), self.out_fcs[i].weight)
-                    save_weight("weight_out_bias_{}".format(i), self.out_fcs[i].bias)
+                    if bias_flag:
+                        save_weight("weight_in_bias_{}".format(i), self.in_fcs[i].bias)
+                        save_weight("weight_out_bias_{}".format(i), self.out_fcs[i].bias)
             in_states = torch.stack(in_states).transpose(0, 1).contiguous()
             in_states = in_states.view(-1, self.n_node*self.n_edge_types, self.state_dim)
             out_states = torch.stack(out_states).transpose(0, 1).contiguous()
@@ -146,10 +147,12 @@ class GGNN(nn.Module):
 
         if save_flag:
             save_weight("weight_o", self.out[2].weight)
-            save_weight("weight_o2_bias", self.out[2].bias)
-            weight_z_1, weight_z_1_bias = self.out[0].weight, self.out[0].bias
+            weight_z_1 = self.out[0].weight
             weight_ho, weight_xo = weight_z_1[:, :self.state_dim], weight_z_1[:, -self.annotation_dim:]
             save_weight("weight_ho", weight_ho)
             save_weight("weight_xo", weight_xo)
-            save_weight("weight_o1_bias", weight_z_1_bias)
+            if bias_flag:
+                save_weight("weight_o2_bias", self.out[2].bias)
+                weight_z_1_bias = self.out[0].bias
+                save_weight("weight_o1_bias", weight_z_1_bias)
         return output
