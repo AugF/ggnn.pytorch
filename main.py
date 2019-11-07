@@ -70,9 +70,10 @@ def main(opt):
 
     for epoch in range(0, opt.niter):
         train(epoch, train_dataloader, net, criterion, optimizer, opt)
-        test(val_dataloader, net, criterion, optimizer, opt, test_flag="Val")
-    print("begin test: ")
-    test(test_dataloader, net, criterion, optimizer, opt)
+        break
+    #     test(val_dataloader, net, criterion, optimizer, opt, test_flag="Val")
+    # print("begin test: ")
+    # test(test_dataloader, net, criterion, optimizer, opt)
 
 if __name__ == "__main__":
     main(opt)

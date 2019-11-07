@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 from torch.autograd import Variable
 
 def train(epoch, dataloader, net, criterion, optimizer, opt):
@@ -22,9 +23,14 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
         output = net(init_input, annotation, adj_matrix)
 
         loss = criterion(output, target)
+        for m in net.modules():
+            if isinstance(m, nn.Linear):
+                print("bias", m.bias.detach().numpy())  # print bias
+                if hasattr(m.bias.grad, "numpy"):
+                    print("grad", m.bias.grad.numpy())
 
         loss.backward()
         optimizer.step()
-
-        # if i % int(len(dataloader) / 10 + 1) == 0 and opt.verbal:
         print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
+        # break
+        # if i % int(len(dataloader) / 10 + 1) == 0 and opt.verbal:
