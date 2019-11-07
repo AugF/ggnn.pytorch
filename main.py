@@ -47,6 +47,8 @@ def main(opt):
     train_dataloader = bAbIDataloader(train_dataset, batch_size=opt.batchSize, \
                                       shuffle=False, num_workers=2)
 
+    print(len(train_dataset), len(train_dataloader))
+
     val_dataset = bAbIDataset(opt.train_dataroot, opt.question_id, False)
     val_dataloader = bAbIDataloader(val_dataset, batch_size=opt.batchSize, \
                                      shuffle=False, num_workers=2)

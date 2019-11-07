@@ -5,8 +5,9 @@ from flags import *
 def train(epoch, dataloader, net, criterion, optimizer, opt):
     net.train()
     for i, (adj_matrix, annotation, target) in enumerate(dataloader, 0):
-        print(adj_matrix.numpy().shape, annotation.numpy().shape, target.numpy().shape)
-        break
+        # print(adj_matrix, "dasd", annotation, "dada", target)
+        # if i == 5:
+        #     break
         net.zero_grad()
 
         padding = torch.zeros(len(annotation), opt.n_node, opt.state_dim - opt.annotation_dim).double()
