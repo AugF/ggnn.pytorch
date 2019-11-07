@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Variable
 
-def test(dataloader, net, criterion, optimizer, opt):
+def test(dataloader, net, criterion, optimizer, opt, test_flag="Test"):
     test_loss = 0
     correct = 0
     net.eval()
@@ -27,6 +27,6 @@ def test(dataloader, net, criterion, optimizer, opt):
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     test_loss /= len(dataloader.dataset)
-    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-        test_loss, correct, len(dataloader.dataset),
+    print('{} set: Average loss: {}, Accuracy: {}/{} ({}%)'.format(
+        test_flag, test_loss, correct, len(dataloader.dataset),
         100. * correct / len(dataloader.dataset)))

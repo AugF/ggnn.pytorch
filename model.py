@@ -1,5 +1,8 @@
 import torch
 import torch.nn as nn
+from tools import save_weight
+
+save_flag = False
 
 class AttrProxy(object):
     """
@@ -23,6 +26,7 @@ class Propogator(nn.Module):
     def __init__(self, state_dim, n_node, n_edge_types):
         super(Propogator, self).__init__()
 
+        self.state_dim = state_dim
         self.n_node = n_node
         self.n_edge_types = n_edge_types
 
@@ -53,6 +57,19 @@ class Propogator(nn.Module):
         h_hat = self.tansform(joined_input)
 
         output = (1 - z) * state_cur + z * h_hat
+
+        if save_flag:
+            gates = [self.reset_gate[0], self.update_gate[0], self.tansform[0]]
+            for j in range(3):
+                left = j * self.state_dim
+                right = (j + 1) * self.state_dim
+                save_weight("weight_r_{}".format(j), gates[0].weight.detach().numpy()[:, left:right])
+                save_weight("weight_z_{}".format(j), gates[1].weight.detach().numpy()[:, left:right])
+                save_weight("weight_h_{}".format(j), gates[2].weight.detach().numpy()[:, left:right])
+
+            save_weight("weight_z_bias", gates[0].bias)
+            save_weight("weight_r_bias", gates[1].bias)
+            save_weight("weight_h_bias", gates[2].bias)
 
         return output
 
@@ -100,7 +117,7 @@ class GGNN(nn.Module):
     def _initialization(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                m.weight.data.normal_(0.0, 0.02)
+                m.weight.data.normal_(0.0, 0.02)  # todo check
                 m.bias.data.fill_(0)
 
     def forward(self, prop_state, annotation, A):
@@ -110,6 +127,11 @@ class GGNN(nn.Module):
             for i in range(self.n_edge_types):
                 in_states.append(self.in_fcs[i](prop_state))
                 out_states.append(self.out_fcs[i](prop_state))
+                if save_flag:
+                    save_weight("weight_in_{}".format(i), self.in_fcs[i].weight)
+                    save_weight("weight_in_bias_{}".format(i), self.in_fcs[i].bias)
+                    save_weight("weight_out_{}".format(i), self.out_fcs[i].weight)
+                    save_weight("weight_out_bias_{}".format(i), self.out_fcs[i].bias)
             in_states = torch.stack(in_states).transpose(0, 1).contiguous()
             in_states = in_states.view(-1, self.n_node*self.n_edge_types, self.state_dim)
             out_states = torch.stack(out_states).transpose(0, 1).contiguous()
@@ -122,4 +144,12 @@ class GGNN(nn.Module):
         output = self.out(join_state)
         output = output.sum(2)
 
+        if save_flag:
+            save_weight("weight_o", self.out[2].weight)
+            save_weight("weight_o2_bias", self.out[2].bias)
+            weight_z_1, weight_z_1_bias = self.out[0].weight, self.out[0].bias
+            weight_ho, weight_xo = weight_z_1[:, :self.state_dim], weight_z_1[:, -self.annotation_dim:]
+            save_weight("weight_ho", weight_ho)
+            save_weight("weight_xo", weight_xo)
+            save_weight("weight_o1_bias", weight_z_1_bias)
         return output

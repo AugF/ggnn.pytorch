@@ -12,13 +12,13 @@ from utils.data.dataset import bAbIDataset
 from utils.data.dataloader import bAbIDataloader
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--task_id', type=int, default=16, help='bAbI task id')
+parser.add_argument('--task_id', type=int, default=4, help='bAbI task id')
 parser.add_argument('--question_id', type=int, default=0, help='question types')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
 parser.add_argument('--batchSize', type=int, default=10, help='input batch size')
 parser.add_argument('--state_dim', type=int, default=10, help='GGNN hidden state size')
-parser.add_argument('--n_steps', type=int, default=5, help='propogation steps number of GGNN')
-parser.add_argument('--niter', type=int, default=150, help='number of epochs to train for')
+parser.add_argument('--n_steps', type=int, default=4, help='propogation steps number of GGNN')
+parser.add_argument('--niter', type=int, default=10, help='number of epochs to train for')
 parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--verbal', action='store_true', help='print training info or not')
@@ -70,7 +70,7 @@ def main(opt):
 
     for epoch in range(0, opt.niter):
         train(epoch, train_dataloader, net, criterion, optimizer, opt)
-        test(val_dataloader, net, criterion, optimizer, opt)
+        test(val_dataloader, net, criterion, optimizer, opt, test_flag="Val")
     print("begin test: ")
     test(test_dataloader, net, criterion, optimizer, opt)
 
