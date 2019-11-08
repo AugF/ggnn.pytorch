@@ -10,6 +10,7 @@ from utils.train import train
 from utils.test import test
 from utils.data.dataset import bAbIDataset
 from utils.data.dataloader import bAbIDataloader
+from flags import *
 
 parser = argparse.ArgumentParser()
 # support change
@@ -47,8 +48,6 @@ def main(opt):
     train_dataloader = bAbIDataloader(train_dataset, batch_size=opt.batchSize, \
                                       shuffle=False, num_workers=2)
 
-    print(len(train_dataset), len(train_dataloader))
-
     val_dataset = bAbIDataset(opt.train_dataroot, opt.question_id, False)
     val_dataloader = bAbIDataloader(val_dataset, batch_size=opt.batchSize, \
                                      shuffle=False, num_workers=2)
@@ -61,6 +60,8 @@ def main(opt):
     opt.n_edge_types = train_dataset.n_edge_types
     opt.n_node = train_dataset.n_node
 
+    if n_steps_flag:
+        opt.n_steps = n_steps_set
     net = GGNN(opt)
     net.double()
     # print(net)

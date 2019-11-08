@@ -1,6 +1,7 @@
 import torch
 from torch.autograd import Variable
 from flags import *
+import torch.nn as nn
 
 def train(epoch, dataloader, net, criterion, optimizer, opt):
     net.train()
@@ -26,14 +27,16 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
         output = net(init_input, annotation, adj_matrix)
 
         loss = criterion(output, target)
-        # for m in net.modules():
-        #     if isinstance(m, nn.Linear):
-        #         print("bias", m.bias.detach().numpy())  # print bias
-        #         if hasattr(m.bias.grad, "numpy"):
-        #             print("grad", m.bias.grad.numpy())
+
+        if weight_flag:
+            weight_print(net)
 
         loss.backward()
-        optimizer.step()
+
+        if grad_flag:
+            grad_print(net)
+
+        # optimizer.step()
         print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
         if sing_step_flag:
             break
