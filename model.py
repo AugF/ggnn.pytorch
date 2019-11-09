@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
 from tools import save_weight
 from flags import *
 
@@ -140,9 +141,11 @@ class GGNN(nn.Module):
 
             prop_state = self.propogator(in_states, out_states, prop_state, A)
 
+        self.end_state = prop_state
         join_state = torch.cat((prop_state, annotation), 2)
 
         output = self.out(join_state)
+        self.z = output
         output = output.sum(2)
 
         if save_flag:

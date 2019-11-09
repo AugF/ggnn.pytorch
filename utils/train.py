@@ -6,9 +6,7 @@ import torch.nn as nn
 def train(epoch, dataloader, net, criterion, optimizer, opt):
     net.train()
     for i, (adj_matrix, annotation, target) in enumerate(dataloader, 0):
-        # print(adj_matrix, "dasd", annotation, "dada", target)
-        # if i == 5:
-        #     break
+        # adj_np = adj_matrix.numpy() # give up, believe pytorch is right
         net.zero_grad()
 
         padding = torch.zeros(len(annotation), opt.n_node, opt.state_dim - opt.annotation_dim).double()
@@ -19,7 +17,7 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
             annotation = annotation.cuda()
             target = target.cuda()
 
-        init_input = Variable(init_input)
+        init_input = Variable(init_input, requires_grad=True)
         adj_matrix = Variable(adj_matrix)
         annotation = Variable(annotation)
         target = Variable(target)
@@ -30,6 +28,10 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
 
         if weight_flag:
             weight_print(net)
+
+        if forward_flag:
+            print("end state", net.end_state)
+            print("z", net.z)
 
         loss.backward()
 
