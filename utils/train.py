@@ -27,12 +27,10 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
         loss = criterion(output, target)
 
         if forward_flag:
-            print("end state", net.end_state)
-            print("z", net.z)
+            weight_print(net)
 
-        x = loss.backward()
+        loss.backward()
 
-        print("", x)
         if grad_flag:
             grad_print(net)
 
