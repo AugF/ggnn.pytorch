@@ -2,7 +2,7 @@ save_flag = False
 bias_flag = False
 
 updated_weight_flag = False
-grad_flag = False
+grad_flag = True
 forward_flag = False
 
 # GGNN n_step
@@ -13,7 +13,7 @@ n_lr_flag = True
 n_lr_set = 0.01
 
 # train times
-sing_step_flag = False
+sing_step_flag = True
 
 
 def weight_print(net):

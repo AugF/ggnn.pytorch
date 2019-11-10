@@ -40,7 +40,7 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
             weight_print(net)
 
         # if i <= 3 or i == len(dataloader) - 1:
-        #     print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
+        print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
         if sing_step_flag:
             break
         # if i % int(len(dataloader) / 10 + 1) == 0 and opt.verbal:
