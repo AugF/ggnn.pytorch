@@ -62,6 +62,8 @@ def main(opt):
 
     if n_steps_flag:
         opt.n_steps = n_steps_set
+    if n_lr_flag:
+        opt.lr = n_lr_set
     net = GGNN(opt)
     net.double()
     # print(net)

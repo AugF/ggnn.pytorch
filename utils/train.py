@@ -17,7 +17,7 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
             annotation = annotation.cuda()
             target = target.cuda()
 
-        init_input = Variable(init_input, requires_grad=True)
+        init_input = Variable(init_input)
         adj_matrix = Variable(adj_matrix)
         annotation = Variable(annotation)
         target = Variable(target)
@@ -26,19 +26,25 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
 
         loss = criterion(output, target)
 
-        if weight_flag:
-            weight_print(net)
-
         if forward_flag:
             print("end state", net.end_state)
             print("z", net.z)
 
-        loss.backward()
+        x = loss.backward()
 
+        print("", len(net.states))
+        print("inits", net.states[0].grad)
+        print("i", net.states[1].grad)
+        print("dsds", net.grads_init)
+        print("da", net.grads_hidden)
         if grad_flag:
             grad_print(net)
 
-        # optimizer.step()
+        optimizer.step()
+
+        if updated_weight_flag:
+            weight_print(net)
+
         print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
         if sing_step_flag:
             break

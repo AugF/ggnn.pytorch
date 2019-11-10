@@ -1,13 +1,16 @@
 save_flag = False
 bias_flag = False
 
-weight_flag = False
+updated_weight_flag = False
 grad_flag = False
-forward_flag = True
+forward_flag = False
 
 # GGNN n_step
 n_steps_flag = True
-n_steps_set = 3
+n_steps_set = 2
+
+n_lr_flag = True
+n_lr_set = 0.01
 
 # train times
 sing_step_flag = True
@@ -58,3 +61,8 @@ def numerical_grad_2d(f, X, h=1e-5):
             grad[i, j] = (loss1 - loss2) / (2.0*h)
             X[i, j] += h
     return grad
+
+def save_grad(name, grads):
+    def hook(grad):
+        grads[name] = grad
+    return hook

@@ -122,12 +122,19 @@ class GGNN(nn.Module):
                     m.bias.data.fill_(0)
 
     def forward(self, prop_state, annotation, A):
+        self.grads_init = {}
+        self.grads_hidden = {}
+        self.states = []
+        self.states.append(Variable(prop_state, requires_grad=True))
+        # self.states[-1].retain_grad() # way2
+        self.states[-1].register_hook(save_grad("states_0", self.grads_init))
+
         for i_step in range(self.n_steps):
             in_states = []
             out_states = []
             for i in range(self.n_edge_types):
-                in_states.append(self.in_fcs[i](prop_state))
-                out_states.append(self.out_fcs[i](prop_state))
+                in_states.append(self.in_fcs[i](self.states[-1]))
+                out_states.append(self.out_fcs[i](self.states[-1]))
                 if save_flag:
                     save_weight("weight_in_{}".format(i), self.in_fcs[i].weight)
                     save_weight("weight_out_{}".format(i), self.out_fcs[i].weight)
@@ -139,13 +146,15 @@ class GGNN(nn.Module):
             out_states = torch.stack(out_states).transpose(0, 1).contiguous()
             out_states = out_states.view(-1, self.n_node*self.n_edge_types, self.state_dim)
 
-            prop_state = self.propogator(in_states, out_states, prop_state, A)
+            self.states.append(Variable(self.propogator(in_states, out_states, self.states[-1], A), requires_grad=True))
+            # self.states[-1].retain_grad()
+            print("i_steps", i_step + 1)
+            print(self.states.__len__())
+            self.states[-1].register_hook(save_grad("states_{}".format(i_step + 1), self.grads_hidden))
 
-        self.end_state = prop_state
-        join_state = torch.cat((prop_state, annotation), 2)
+        join_state = torch.cat((self.states[-1], annotation), 2)
 
         output = self.out(join_state)
-        self.z = output
         output = output.sum(2)
 
         if save_flag:
