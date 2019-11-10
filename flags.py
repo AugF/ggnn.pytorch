@@ -7,8 +7,7 @@ forward_flag = False
 
 # GGNN n_step
 n_steps_flag = True
-n_steps_set = 1
-
+n_steps_set = 4
 
 n_lr_flag = True
 n_lr_set = 0.01
@@ -42,7 +41,7 @@ def grad_print(net):
         if i == 4:
             gates = ["update_gate", "reset_gate", "tansform"]
             for gate in gates:
-                print(gate + "grad")
+                print(gate + " grad")
                 print(getattr(getattr(net, lin), gate)[0].weight.grad.numpy().T)
         if i == 5:
             print("grad weight_0", getattr(net, lin)[0].weight.grad.numpy().T)

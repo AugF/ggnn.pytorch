@@ -39,7 +39,8 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
         if updated_weight_flag:
             weight_print(net)
 
-        print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
+        # if i <= 3 or i == len(dataloader) - 1:
+        #     print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
         if sing_step_flag:
             break
         # if i % int(len(dataloader) / 10 + 1) == 0 and opt.verbal:
