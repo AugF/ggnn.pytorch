@@ -1,8 +1,15 @@
 save_flag = False
 bias_flag = False
 
+# weight save file
+task_set_flag = True
+task_id_set = 15  # 4, 15, 16
+state_dim_set = 5 # 4, 5, 10
+niter_set = 10 # 10, 10, 150
+
+# debug
 updated_weight_flag = False
-grad_flag = True
+grad_flag = False
 forward_flag = False
 
 # GGNN n_step
@@ -13,7 +20,7 @@ n_lr_flag = True
 n_lr_set = 0.01
 
 # train times
-sing_step_flag = True
+sing_step_flag = False
 
 
 def weight_print(net):

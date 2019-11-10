@@ -7,6 +7,10 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
     net.train()
     for i, (adj_matrix, annotation, target) in enumerate(dataloader, 0):
         # adj_np = adj_matrix.numpy() # give up, believe pytorch is right
+        # if i <= 5 or i == 105:
+        #     print("adj\n", adj_matrix.detach().numpy())
+        #     print("annotation\n", annotation.detach().numpy())
+        #     print("target\n", target.detach().numpy())
         net.zero_grad()
 
         padding = torch.zeros(len(annotation), opt.n_node, opt.state_dim - opt.annotation_dim).double()
@@ -40,7 +44,7 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
             weight_print(net)
 
         # if i <= 3 or i == len(dataloader) - 1:
-        print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
+        # print('[{}/{}][{}/{}] Loss: {}'.format(epoch, opt.niter, i, len(dataloader), loss.item()))
         if sing_step_flag:
             break
         # if i % int(len(dataloader) / 10 + 1) == 0 and opt.verbal:

@@ -14,9 +14,9 @@ from flags import *
 
 parser = argparse.ArgumentParser()
 # support change
-parser.add_argument('--task_id', type=int, default=4, help='bAbI task id')
-parser.add_argument('--state_dim', type=int, default=4, help='GGNN hidden state size')
-parser.add_argument('--niter', type=int, default=10, help='number of epochs to train for')
+parser.add_argument('--task_id', type=int, default=16, help='bAbI task id')
+parser.add_argument('--state_dim', type=int, default=10, help='GGNN hidden state size')
+parser.add_argument('--niter', type=int, default=150, help='number of epochs to train for')
 
 # unsupport change
 parser.add_argument('--question_id', type=int, default=0, help='question types')
@@ -37,6 +37,8 @@ opt = parser.parse_args()
 random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
+if task_set_flag:
+    opt.task_id, opt.state_dim, opt.niter = task_id_set, state_dim_set, niter_set
 opt.train_dataroot = 'babi_data/processed_1/train/%d_graphs.txt' % opt.task_id
 opt.test_dataroot = 'babi_data/processed_1/test/%d_graphs.txt' % opt.task_id
 
