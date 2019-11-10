@@ -32,11 +32,7 @@ def train(epoch, dataloader, net, criterion, optimizer, opt):
 
         x = loss.backward()
 
-        print("", len(net.states))
-        print("inits", net.states[0].grad)
-        print("i", net.states[1].grad)
-        print("dsds", net.grads_init)
-        print("da", net.grads_hidden)
+        print("", x)
         if grad_flag:
             grad_print(net)
 
